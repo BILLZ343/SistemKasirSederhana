@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Kasir</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            font-family: Arial, sans-serif;
+            background: #f3f3f3;
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: auto;
+            padding: 35px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 35px;
+        }
+
+        h2 {
+            font-size: 25px;
+            margin: 25px 0;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #aaa;
+            margin: 20px 0 30px;
+        }
+
+        .input-barang {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .input-barang input {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            border: 1px solid #888;
+        }
+
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-tambah {
+            background: green;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-tambah:hover { background: darkgreen; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 17px;
+            background: #292929;
+            color: white;
+            font-size: 17px;
+        }
+
+        td {
+            padding: 18px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        .btn-hapus {
+            background: red;
+            color: white;
+        }
+
+        .btn-hapus:hover { background: darkred; }
+
+        .total {
+            margin-top: 25px;
+            font-size: 25px;
+        }
+
+        .pembayaran {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .pembayaran input {
+            width: 270px;
+            padding: 15px;
+            font-size: 16px;
+            border: 1px solid #888;
+        }
+
+        .btn-kembalian { background: #eee; }
+        .btn-kembalian:hover { background: #ddd; }
+
+        .kembalian {
+            margin-top: 30px;
+            font-size: 22px;
+        }
+
+        #hasilKembalian {
+            color: green;
+            font-weight: bold;
+        }
+
+        @media (max-width: 800px) {
+            .input-barang { flex-direction: column; }
+
+            .pembayaran {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>SISTEM KASIR</h1>
+        <hr>
+
+        <h2>Input Barang</h2>
+
+        <div class="input-barang">
+            <input id="nama" type="text" placeholder="Nama Barang">
+            <input id="harga" type="number" placeholder="Harga">
+            <input id="jumlah" type="number" placeholder="Jumlah">
+
+            <button class="btn-tambah" onclick="tambahBarang()">
+                Tambah Barang
+            </button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Barang</th>
+                    <th>Harga</th>
+                    <th>Jumlah</th>
+                    <th>Subtotal</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+
+            <tbody id="tabelBarang"></tbody>
+        </table>
+
+        <div class="total">
+            Total Belanja:
+            <span id="total">Rp 0</span>
+        </div>
+
+        <hr>
+
+        <h2>Pembayaran</h2>
+
+        <div class="pembayaran">
+            <input id="bayar" type="number"
+                placeholder="Masukkan uang pembayaran">
+
+            <button class="btn-kembalian" onclick="hitungKembalian()">
+                Hitung Kembalian
+            </button>
+        </div>
+
+        <div class="kembalian">
+            Kembalian:
+            <span id="hasilKembalian">Rp 0</span>
+        </div>
+    </div>
+
+    <script>
+        let barang = [];
+        let total = 0;
+
+        function tambahBarang() {
+            let nama = document.getElementById("nama").value;
+            let harga = Number(document.getElementById("harga").value);
+            let jumlah = Number(document.getElementById("jumlah").value);
+
+            if (harga <= 0 || jumlah <= 0) {
+                alert("Tolong isi ulang input dengan benar!");
+                return;
+            }
+
+            barang.push({ nama, harga, jumlah });
+            tampilkanBarang();
+
+            document.getElementById("nama").value = "";
+            document.getElementById("harga").value = "";
+            document.getElementById("jumlah").value = "";
+        }
+
+        function tampilkanBarang() {
+            let tabel = document.getElementById("tabelBarang");
+            tabel.innerHTML = "";
+            total = 0;
+
+            for (let i = 0; i < barang.length; i++) {
+                let subtotal = barang[i].harga * barang[i].jumlah;
+                total += subtotal;
+
+                tabel.innerHTML += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${barang[i].nama}</td>
+                        <td>Rp ${barang[i].harga.toLocaleString("id-ID")}</td>
+                        <td>${barang[i].jumlah}</td>
+                        <td>Rp ${subtotal.toLocaleString("id-ID")}</td>
+                        <td>
+                            <button class="btn-hapus"
+                                onclick="hapusBarang(${i})">
+                                Hapus
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            document.getElementById("total").innerHTML =
+                "Rp " + total.toLocaleString("id-ID");
+        }
+
+        function hapusBarang(index) {
+            barang.splice(index, 1);
+            tampilkanBarang();
+        }
+
+        function hitungKembalian() {
+            let bayar = Number(document.getElementById("bayar").value);
+
+            if (bayar < total) {
+                alert("Uang pembayaran tidak cukup!");
+                return;
+            }
+
+            let kembalian = bayar - total;
+
+            document.getElementById("hasilKembalian").innerHTML =
+                "Rp " + kembalian.toLocaleString("id-ID");
+        }
+    </script>
+</body>
+</html>
